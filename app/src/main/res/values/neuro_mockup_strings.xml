@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Shared status -->
+    <string name="neuro_status_online">Online</string>
+    <string name="neuro_status_live">Live</string>
+    <string name="neuro_status_secure">Secure</string>
+    <string name="neuro_status_optimal">Optimal</string>
+    <string name="neuro_status_excellent">Excellent</string>
+
+    <!-- Overview -->
+    <string name="neuro_overview_title">Overview</string>
+    <string name="neuro_focus_score">Focus Score</string>
+    <string name="neuro_cognitive_load">Cognitive Load</string>
+    <string name="neuro_moderate">Moderate</string>
+    <string name="neuro_optimal_range">Optimal range</string>
+    <string name="neuro_sessions">Sessions</string>
+    <string name="neuro_neuro_balance">Neuro Balance</string>
+    <string name="neuro_streak">Streak</string>
+    <string name="neuro_recent_activity">Recent Activity</string>
+    <string name="neuro_insights">Insights</string>
+    <string name="neuro_focus_training">Focus Training</string>
+    <string name="neuro_memory_recall">Memory Recall</string>
+    <string name="neuro_breathwork">Breathwork</string>
+    <string name="neuro_focus_improving">Focus improving</string>
+    <string name="neuro_momentum_message">You’re building great momentum. Keep it up!</string>
+    <string name="neuro_view_full_report">View full report</string>
+
+    <!-- Battery -->
+    <string name="neuro_battery_title">Battery</string>
+    <string name="neuro_system_power_status">System Power Status</string>
+    <string name="neuro_fully_charged">Fully charged</string>
+    <string name="neuro_voltage">Voltage</string>
+    <string name="neuro_temperature">Temperature</string>
+    <string name="neuro_health">Health</string>
+    <string name="neuro_time_remaining">Time remaining</string>
+    <string name="neuro_usage">Usage</string>
+    <string name="neuro_cycles">Cycles</string>
+
+    <!-- Performance -->
+    <string name="neuro_performance_title">Performance</string>
+    <string name="neuro_realtime_metrics">Real-time system metrics</string>
+    <string name="neuro_system_score">System score</string>
+    <string name="neuro_cpu_usage">CPU usage</string>
+    <string name="neuro_memory">Memory</string>
+    <string name="neuro_cpu_load">CPU load</string>
+    <string name="neuro_storage">Storage</string>
+    <string name="neuro_uptime">Uptime</string>
+    <string name="neuro_processes">Processes</string>
+    <string name="neuro_system_temp">System temperature</string>
+    <string name="neuro_view_full_performance">View full performance</string>
+
+    <!-- Network -->
+    <string name="neuro_network_title">Network</string>
+    <string name="neuro_connectivity_hub">Connectivity Hub</string>
+    <string name="neuro_internet">Internet</string>
+    <string name="neuro_connected">Connected</string>
+    <string name="neuro_vpn">VPN</string>
+    <string name="neuro_inactive">Inactive</string>
+    <string name="neuro_local_network">Local Network</string>
+    <string name="neuro_bluetooth">Bluetooth</string>
+    <string name="neuro_connections">Connections</string>
+    <string name="neuro_latency">Latency</string>
+    <string name="neuro_download">Download</string>
+    <string name="neuro_upload">Upload</string>
+    <string name="neuro_packet_loss">Packet loss</string>
+    <string name="neuro_run_diagnostics">Run diagnostics</string>
+    <string name="neuro_network_settings">Network settings</string>
+
+    <!-- Security -->
+    <string name="neuro_security_title">Security</string>
+    <string name="neuro_system_protected">System Protected</string>
+    <string name="neuro_security_description">NeuroOS is actively protecting your data, devices, and identity.</string>
+    <string name="neuro_threat_monitoring">Threat monitoring</string>
+    <string name="neuro_blocked_threats">Blocked threats</string>
+    <string name="neuro_system_integrity">System integrity</string>
+    <string name="neuro_threat_scan">Threat Scan</string>
+    <string name="neuro_run_security_scan">Run security scan</string>
+    <string name="neuro_identity_guard">Identity Guard</string>
+    <string name="neuro_monitor_accounts">Monitor accounts</string>
+    <string name="neuro_access_control">Access Control</string>
+    <string name="neuro_manage_permissions">Manage permissions</string>
+    <string name="neuro_secure_vault">Secure Vault</string>
+    <string name="neuro_encrypted_storage">Encrypted storage</string>
+    <string name="neuro_security_priority">Your security is our priority.</string>
+
+    <!-- Dashboard/modules -->
+    <string name="neuro_explore_all_modules">Explore all modules</string>
+    <string name="neuro_neuroboost">NeuroBoost</string>
+    <string name="neuro_securemind">SecureMind</string>
+    <string name="neuro_ai_care">AI Care</string>
+    <string name="neuro_quick_actions">Quick actions</string>
+    <string name="neuro_deep_clean">Deep Clean</string>
+    <string name="neuro_memory_boost">Memory Boost</string>
+    <string name="neuro_scan_system">Scan System</string>
+    <string name="neuro_app_manager">App Manager</string>
+    <string name="neuro_thermal_guard">Thermal Guard</string>
+    <string name="neuro_privacy_shield">Privacy Shield</string>
+    <string name="neuro_home">Home</string>
+    <string name="neuro_modules">Modules</string>
+    <string name="neuro_settings">Settings</string>
+</resources>
