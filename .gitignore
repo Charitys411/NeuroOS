@@ -9,4 +9,5 @@ captures/
 .cxx/
 *.apk
 *.aab
+docs/tour.mp4
 !docs/*.apk

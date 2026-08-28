@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.foundation.gestures.detectTapGestures
 import android.os.Bundle
@@ -56,6 +58,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationRail
 import androidx.compose.material3.NavigationRailItem
+import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.OutlinedTextField
@@ -103,7 +106,8 @@ import android.content.Context
 import androidx.compose.material3.Icon
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ScreenShare
-import androidx.compose.material.icons.filled.FlipCameraAndroid
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.core.graphics.drawable.toBitmap
 import kotlinx.coroutines.delay
@@ -121,9 +125,9 @@ class MainActivity : ComponentActivity() {
 
 
 private enum class AppView(val label: String, val key: String, val adultIcon: Int, val kidsIcon: Int) {
-    Home("Home", "H", R.drawable.neuro_nav_home, R.drawable.neuro_kids_home),
+    Home("Home", "H", R.drawable.ic_nav_home, R.drawable.neuro_kids_home),
     Overview("Overview", "O", R.drawable.neuro_nav_overview, R.drawable.neuro_kids_home),
-    Launcher("Apps", "A", R.drawable.neuro_nav_apps, R.drawable.neuro_kids_apps),
+    Launcher("Apps", "A", R.drawable.ic_nav_apps, R.drawable.neuro_kids_apps),
     Dashboard("Data", "D", R.drawable.neuro_nav_data, R.drawable.neuro_kids_trophy),
     Planner("Plan", "L", R.drawable.neuro_nav_plan, R.drawable.neuro_kids_plan),
     Stickers("Rewards", "K", R.drawable.neuro_nav_rewards, R.drawable.neuro_kids_rewards),
@@ -136,7 +140,7 @@ private enum class AppView(val label: String, val key: String, val adultIcon: In
     GuardianCall("Support", "G", R.drawable.neuro_nav_support, R.drawable.neuro_kids_support),
     GuardianAI("Insights", "I", R.drawable.neuro_nav_insights, R.drawable.neuro_kids_support),
     MemorySetup("Brain", "B", R.drawable.neuro_nav_brain, R.drawable.neuro_kids_home),
-    Profile("Profile", "P", R.drawable.neuro_nav_profile, R.drawable.neuro_kids_profile),
+    Profile("Profile", "P", R.drawable.ic_nav_profile, R.drawable.neuro_kids_profile),
     Reflection("Reflect", "R", R.drawable.neuro_nav_reflect, R.drawable.neuro_kids_sleep),
     About("About", "Q", R.drawable.neuro_logo_primary, R.drawable.neuro_logo_primary)
 }
@@ -486,7 +490,7 @@ private fun NeuroNavigationRail(current: AppView, onSelect: (AppView) -> Unit, p
             
             // Fixed branding position at the top
             Image(
-                painter = androidx.compose.ui.res.painterResource(id = R.drawable.neuro_logo_primary),
+                painter = androidx.compose.ui.res.painterResource(id = R.drawable.neuro_logo_n_standalone),
                 contentDescription = "NeuroOS Branding",
                 modifier = Modifier
                     .size(if (isKids) 64.dp else 52.dp)
@@ -514,28 +518,62 @@ private fun NeuroNavigationRail(current: AppView, onSelect: (AppView) -> Unit, p
                         .heightIn(min = if (isKids) 84.dp else 72.dp)
                         .testTag("nav_${item.name}")
                         .semantics { contentDescription = item.label },
+                    colors = NavigationRailItemDefaults.colors(
+                        selectedIconColor = MaterialTheme.colorScheme.primary,
+                        unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        selectedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f) // Branded Cyan Glow
+                    ),
                     icon = {
+                        val iconColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        
                         Box(
                             modifier = Modifier
-                                .size(if (isKids) 48.dp else 40.dp)
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(
-                                    if (isSelected) MaterialTheme.colorScheme.secondary.copy(alpha = 0.22f)
-                                    else Color.Transparent
-                                )
+                                .size(if (isKids) 56.dp else 48.dp)
+                                .clip(RoundedCornerShape(16.dp))
                                 .then(
-                                    if (isSelected) Modifier.border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.6f), RoundedCornerShape(12.dp))
-                                    else Modifier
+                                    if (isSelected) Modifier.border(2.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.8f), RoundedCornerShape(16.dp))
+                                    else Modifier.border(1.dp, Color.White.copy(alpha = 0.1f), RoundedCornerShape(16.dp))
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
-                            Image(
-                                painter = androidx.compose.ui.res.painterResource(id = if (isKids) item.kidsIcon else item.adultIcon),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(if (isKids) 36.dp else 28.dp)
-                                    .alpha(if (isSelected) 1f else 0.72f)
-                            )
+                            if (isKids) {
+                                // For kids mode, we use the colorful PNGs but apply a transparent filter if they have white backgrounds
+                                Image(
+                                    painter = androidx.compose.ui.res.painterResource(id = item.kidsIcon),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(38.dp),
+                                    colorFilter = ColorFilter.tint(Color.Transparent, BlendMode.DstOver) // Defensive transparency
+                                )
+                            } else {
+                                val vector = when(item) {
+                                    AppView.Home -> Icons.Default.RocketLaunch
+                                    AppView.Overview -> Icons.Default.Dashboard
+                                    AppView.Launcher -> Icons.Default.Apps
+                                    AppView.Dashboard -> Icons.Default.Analytics
+                                    AppView.Planner -> Icons.Default.EventNote
+                                    AppView.Stickers -> Icons.Default.Stars
+                                    AppView.Routines -> Icons.Default.History
+                                    AppView.Talk -> Icons.Default.Chat
+                                    AppView.Finances -> Icons.Default.AccountBalanceWallet
+                                    AppView.Focus -> Icons.Default.FilterCenterFocus
+                                    AppView.Sensory -> Icons.Default.Tune
+                                    AppView.Themes -> Icons.Default.Palette
+                                    AppView.GuardianCall -> Icons.Default.PhoneCallback
+                                    AppView.GuardianAI -> Icons.Default.AutoAwesome
+                                    AppView.MemorySetup -> Icons.Default.SettingsSuggest
+                                    AppView.Profile -> Icons.Default.Person
+                                    AppView.Reflection -> Icons.Default.AutoGraph
+                                    AppView.About -> Icons.Default.Help
+                                }
+                                Icon(
+                                    imageVector = vector,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(28.dp),
+                                    tint = iconColor
+                                )
+                            }
                         }
                     },
                     label = { 
@@ -565,26 +603,19 @@ private fun TopBar(view: AppView, profile: NeuroProfile, session: FocusSession) 
             .padding(horizontal = 4.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        // High-fidelity branding in TopBar with Glass-morphism
-        Surface(
-            modifier = Modifier.size(48.dp).border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), RoundedCornerShape(12.dp)),
-            shape = RoundedCornerShape(12.dp),
-            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
-            shadowElevation = 4.dp
-        ) {
-            Image(
-                painter = androidx.compose.ui.res.painterResource(id = R.drawable.neuro_logo_primary),
-                contentDescription = "Logo",
-                modifier = Modifier.fillMaxSize().padding(8.dp)
-            )
-        }
+        // Transparent branding logo
+        Image(
+            painter = androidx.compose.ui.res.painterResource(id = R.drawable.neuro_logo_n_standalone),
+            contentDescription = "Logo",
+            modifier = Modifier.size(44.dp)
+        )
         
-        Spacer(Modifier.width(14.dp))
+        Spacer(Modifier.width(12.dp))
         
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = "NeuroOS • ${profile.studentSegment.uppercase()}",
-                color = MaterialTheme.colorScheme.primary,
+                color = MaterialTheme.colorScheme.secondary, // Switched to Electric Purple for better brand alignment
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 1.sp
@@ -1198,7 +1229,7 @@ private fun AdultDashboard(
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
-                        Text("Executive Dashboard", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.primary)
+                        Text("Executive Dashboard", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.secondary)
                         Text("Intention for today", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black)
                     }
                     Text(
@@ -1294,47 +1325,46 @@ fun AdultToolButton(label: String, iconRes: Int, modifier: Modifier = Modifier, 
 }
 
 private fun afterglowColorScheme() = darkColorScheme(
-    primary = Color(0xFF00E5FF), // Afterglow Cyan
-    onPrimary = Color(0xFF050811), // Near-black for buttons
-    primaryContainer = Color(0xFF111627), // Elevated Surface
-    onPrimaryContainer = Color(0xFFF4F7FF),
-    secondary = Color(0xFFA29BFE), // Afterglow Violet
+    primary = Color(0xFF00E5FF),
+    onPrimary = Color(0xFF050811),
+    primaryContainer = Color(0xFF003B46),
+    onPrimaryContainer = Color(0xFFE0F7FA),
+    secondary = Color(0xFFA855F7),
     onSecondary = Color(0xFF0B0E1A),
-    secondaryContainer = Color(0xFF171D31), // Interactive Surface
-    onSecondaryContainer = Color(0xFFF4F7FF),
-    tertiary = Color(0xFFFFD54F), // Accent Gold
-    onTertiary = Color(0xFF070A12),
-    background = Color(0xFF070A12), // Afterglow Canvas
-    surface = Color(0xFF0B0E1A), // Afterglow Surface
-    onSurface = Color(0xFFF4F7FF), // Primary Text
-    surfaceVariant = Color(0xFF111627), // Elevated Surface
-    onSurfaceVariant = Color(0xFFE2E8F0), // Brightened Secondary Text for High Contrast
-    outline = Color(0xFF27314D), // Border
-    outlineVariant = Color(0xFF1C2439), // Subtle Divider
+    secondaryContainer = Color(0xFF1A1F2E), // Deep Blue-Cyan mix
+    onSecondaryContainer = Color(0xFF00E5FF),
+    tertiary = Color(0xFFFFD700),
+    onTertiary = Color(0xFF050811),
+    background = Color(0xFF050811),
+    surface = Color(0xFF0B0E1A),
+    onSurface = Color(0xFFF4F7FF),
+    surfaceVariant = Color(0xFF111627),
+    onSurfaceVariant = Color(0xFFE2E8F0),
+    outline = Color(0xFF333D55),
+    outlineVariant = Color(0xFF1C2439),
     error = Color(0xFFFF647C),
-    scrim = Color(0xFF7E89A3) // Tertiary Text
+    scrim = Color(0xFF7E89A3)
 )
 
 private fun daylightColorScheme() = lightColorScheme(
-    primary = Color(0xFF007F9E), // Primary Cyan
+    primary = Color(0xFF007F9E),
     onPrimary = Color.White,
-    primaryContainer = Color(0xFFE7EDF6), // Elevated Surface
-    onPrimaryContainer = Color(0xFF111827),
-    secondary = Color(0xFF6750A4), // Secondary Violet
+    primaryContainer = Color(0xFFB2EBF2),
+    onPrimaryContainer = Color(0xFF006064),
+    secondary = Color(0xFF7A44AD),
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFDCE6F2), // Interactive Surface
-    onSecondaryContainer = Color(0xFF111827),
-    tertiary = Color(0xFF9A6800), // Accent Gold
+    secondaryContainer = Color(0xFFE0F7FA), // Light Cyan/Blue mix
+    onSecondaryContainer = Color(0xFF006064),
+    tertiary = Color(0xFFB8860B),
     onTertiary = Color.White,
-    background = Color(0xFFF2F6FA), // Canvas
-    surface = Color.White, // Surface
-    onSurface = Color(0xFF111827), // Primary Text
-    surfaceVariant = Color(0xFFE7EDF6), // Elevated Surface
-    onSurfaceVariant = Color(0xFF526075), // Secondary Text
-    outline = Color(0xFFB7C6D9), // Border
-    outlineVariant = Color(0xFFD3DDE9), // Subtle Divider
-    error = Color(0xFFB4233B),
-    scrim = Color(0xFF6E7C91) // Tertiary Text
+    background = Color(0xFFF8F9FA),
+    surface = Color.White,
+    onSurface = Color(0xFF111827),
+    surfaceVariant = Color(0xFFF1F4F9),
+    onSurfaceVariant = Color(0xFF4B5563),
+    outline = Color(0xFFD1D5DB),
+    outlineVariant = Color(0xFFE5E7EB),
+    error = Color(0xFFB4233B)
 )
 
 
@@ -1479,15 +1509,15 @@ private fun KidsDashboard(
 private fun kidsColorScheme() = darkColorScheme(
     primary = Color(0xFF00E5FF),
     onPrimary = Color.Black,
-    secondary = Color(0xFFA29BFE),
+    secondary = Color(0xFFA855F7),
     onSecondary = Color.Black,
-    tertiary = Color(0xFFFFD54F),
+    tertiary = Color(0xFFFFD700),
     onTertiary = Color.Black,
-    background = Color(0xFF0A192F),
-    surface = Color(0xFF1E293B),
+    background = Color(0xFF070A12), // Unified Deep Canvas
+    surface = Color(0xFF111627), // Brighter Surface for Kids
     onSurface = Color.White,
-    surfaceVariant = Color(0xFF334155),
-    onSurfaceVariant = Color(0xFFCBD5E1), // Light gray for secondary text
+    surfaceVariant = Color(0xFF1E2439),
+    onSurfaceVariant = Color(0xFFCBD5E1),
     error = Color(0xFFFF5252)
 )
 
@@ -1641,7 +1671,7 @@ private fun HomeScreen(
                 modifier = Modifier.padding(20.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text("Current priority", color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Bold)
+                Text("Current priority", color = MaterialTheme.colorScheme.secondary, fontWeight = FontWeight.Bold)
                 Text(selectedTask.title, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.onSurface)
                 Text("Next step: ${selectedTask.steps.first()}", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Button(
@@ -1649,7 +1679,8 @@ private fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp)
-                        .semantics { contentDescription = "Start study session for ${selectedTask.title}" }
+                        .semantics { contentDescription = "Start study session for ${selectedTask.title}" },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text("Start study session", fontWeight = FontWeight.Bold)
                 }
@@ -2961,77 +2992,68 @@ private fun SectionTitle(title: String) {
 
 private fun colorSchemeFor(profile: NeuroProfile, darkTheme: Boolean): ColorScheme {
     if (profile.themeMode == AppThemeMode.Kids) {
-        return darkColorScheme(
-            primary = Color(0xFF00E5FF),
-            onPrimary = Color.Black,
-            secondary = Color(0xFFA29BFE),
-            onSecondary = Color.Black,
-            tertiary = Color(0xFFFFD54F),
-            onTertiary = Color.Black,
-            background = Color(0xFF0A192F),
-            surface = Color(0xFF1E293B),
-            onSurface = Color.White,
-            surfaceVariant = Color(0xFF334155),
-            onSurfaceVariant = Color(0xFFCBD5E1), // Brightened for readability
-            error = Color(0xFFFF5252)
-        )
+        return kidsColorScheme()
     }
 
     return when (profile.sensoryProfile.id) {
         VisualProfiles.highContrast.id -> if (darkTheme) {
             darkColorScheme(
-                primary = Color(0xFF67F2FF),
+                primary = Color(0xFF00E5FF), // Brand Cyan
                 onPrimary = Color.Black,
                 primaryContainer = Color(0xFF003B46),
-                secondary = Color(0xFFC9B8FF),
+                secondary = Color(0xFFA855F7), // Brand Purple
                 secondaryContainer = Color(0xFF301B54),
+                tertiary = Color(0xFFFFD700), // Brand Gold
                 background = Color.Black,
                 surface = Color(0xFF080A10),
                 onSurface = Color.White,
-                onSurfaceVariant = Color(0xFFCBD5E1), // Brightened
+                onSurfaceVariant = Color(0xFFE2E8F0),
                 outline = Color.White,
                 outlineVariant = Color(0xFF68708A)
             )
         } else {
             lightColorScheme(
-                primary = Color(0xFF005662),
+                primary = Color(0xFF00A3B5), // Brand Cyan (Readable)
                 onPrimary = Color.White,
-                primaryContainer = Color(0xFFD8F8FF),
-                secondary = Color(0xFF4D3396),
-                secondaryContainer = Color(0xFFE9E0FF),
+                primaryContainer = Color(0xFFE0F7FA),
+                secondary = Color(0xFF7A44AD), // Brand Purple
+                secondaryContainer = Color(0xFFF3E5F5),
+                tertiary = Color(0xFFB8860B), // Brand Gold
                 background = Color.White,
                 surface = Color.White,
                 onSurface = Color.Black,
-                onSurfaceVariant = Color.Black,
+                onSurfaceVariant = Color(0xFF374151),
                 outline = Color.Black,
-                outlineVariant = Color.DarkGray
+                outlineVariant = Color(0xFF9CA3AF)
             )
         }
 
         VisualProfiles.readingComfort.id -> if (darkTheme) {
             darkColorScheme(
-                primary = Color(0xFF72DCEB),
+                primary = Color(0xFF00E5FF),
                 onPrimary = Color(0xFF001014),
                 primaryContainer = Color(0xFF12313D),
-                secondary = Color(0xFFB6A9EA),
+                secondary = Color(0xFFA855F7),
                 secondaryContainer = Color(0xFF29213D),
+                tertiary = Color(0xFFFFD700),
                 background = Color(0xFF0A0D15),
                 surface = Color(0xFF101522),
                 onSurface = Color(0xFFF1F3F8),
-                onSurfaceVariant = Color(0xFFD1D9EA), // Brightened
+                onSurfaceVariant = Color(0xFFD1D9EA),
                 outlineVariant = Color(0xFF30394F)
             )
         } else {
             lightColorScheme(
-                primary = Color(0xFF006874),
+                primary = Color(0xFF00A3B5),
                 onPrimary = Color.White,
                 primaryContainer = Color(0xFFFBFAF5),
-                secondary = Color(0xFF5F4E92),
+                secondary = Color(0xFF7A44AD),
                 secondaryContainer = Color(0xFFF4F3ED),
+                tertiary = Color(0xFFB8860B),
                 background = Color(0xFFF4F3ED),
                 surface = Color(0xFFFBFAF5),
                 onSurface = Color(0xFF1C1B1F),
-                onSurfaceVariant = Color(0xFF49454F),
+                onSurfaceVariant = Color(0xFF4B5563),
                 outline = Color(0xFF79747E)
             )
         }

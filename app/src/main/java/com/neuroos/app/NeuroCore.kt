@@ -403,7 +403,7 @@ object NeuroRepository {
         StudyClass(
             id = "cog-210",
             title = "Cognitive Psychology",
-            accentHex = "#00E5FF",
+            accentHex = "#A855F7", // Updated to Electric Purple Brand
             nextBlock = "Today 2:00 PM",
             priority = "Chapter 8 retrieval practice"
         ),
