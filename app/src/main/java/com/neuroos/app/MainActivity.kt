@@ -613,9 +613,11 @@ private fun TopBar(view: AppView, profile: NeuroProfile, session: FocusSession) 
         Spacer(Modifier.width(12.dp))
         
         Column(modifier = Modifier.weight(1f)) {
+            val isKidsMode = profile.themeMode == AppThemeMode.Kids
+            val segmentLabel = if (isKidsMode) "KIDS EXPLORER" else profile.studentSegment.uppercase()
             Text(
-                text = "NeuroOS • ${profile.studentSegment.uppercase()}",
-                color = MaterialTheme.colorScheme.secondary, // Switched to Electric Purple for better brand alignment
+                text = "NeuroOS • $segmentLabel",
+                color = MaterialTheme.colorScheme.secondary,
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = 1.sp
@@ -2767,7 +2769,6 @@ private fun ProfileScreen(profile: NeuroProfile, onProfileChange: (NeuroProfile)
         SectionTitle("App Mode")
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             AppThemeMode.entries.forEach { mode ->
-                // Adventure Mode is now unlocked for a 'First Trip' for everyone
                 FilterChip(
                     selected = profile.themeMode == mode,
                     onClick = { 
@@ -2779,6 +2780,19 @@ private fun ProfileScreen(profile: NeuroProfile, onProfileChange: (NeuroProfile)
                             if (mode == AppThemeMode.Kids && !profile.isPremium) Text("✨", fontSize = 10.sp)
                         }
                     },
+                    modifier = Modifier.weight(1f)
+                )
+            }
+        }
+
+        SectionTitle("User Segment")
+        val segments = listOf("College", "Professional", "High School", "Adaptive")
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            segments.forEach { seg ->
+                FilterChip(
+                    selected = profile.studentSegment.equals(seg, ignoreCase = true),
+                    onClick = { onProfileChange(profile.copy(studentSegment = seg)) },
+                    label = { Text(seg, fontSize = 11.sp, fontWeight = FontWeight.Bold) },
                     modifier = Modifier.weight(1f)
                 )
             }
