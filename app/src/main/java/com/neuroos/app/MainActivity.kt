@@ -2925,7 +2925,7 @@ private fun AboutScreen() {
             Column(Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 Text("🦖 From the Founder", fontWeight = FontWeight.Black, style = MaterialTheme.typography.titleLarge)
                 Text(
-                    text = "“NeuroOS was born from lived experience. As a neurodivergent individual raising children and supporting family members on the ASD spectrum, I have spent years witnessing the 'digital friction' our community faces.\n\nCurrent technology is often a source of overwhelm rather than support. I wanted to create something that runs on the devices we have with us every second of the day—our mobile phones—to turn them from sources of chaos into tools for clarity. My dream is for NeuroOS to start here, but eventually grow into a full computer operating system that redefines how the neurodivergent world interacts with technology.”",
+                    text = "“NeuroOS was built out of pure lived experience. It's just me—a solo neurodivergent founder—working alongside my own kids, niece, and nephew to design and test an operating system that truly meets the real-world needs of our community, one click at a time.\n\nMy dream is for NeuroOS to start on mobile, but eventually grow into a full computer operating system that redefines adaptive technology for everyone.”",
                     style = MaterialTheme.typography.bodyLarge,
                     lineHeight = 24.sp
                 )
