@@ -6,36 +6,37 @@
     <title>NeuroOS Beta - Early Access</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #070A12; color: #F4F7FF; font-family: 'Inter', sans-serif; }
+        body { background-color: #050811; color: #F4F7FF; font-family: 'Inter', system-ui, sans-serif; }
         .neon-border { border: 1px solid rgba(0, 229, 255, 0.3); }
-        .glass { background: rgba(17, 22, 39, 0.7); backdrop-filter: blur(10px); }
-        .btn-primary { background-color: #00E5FF; color: #050811; transition: all 0.3s; }
-        .btn-primary:hover { background-color: #67F2FF; transform: scale(1.05); }
+        .purple-border { border: 1px solid rgba(168, 85, 247, 0.3); }
+        .glass { background: rgba(11, 14, 26, 0.8); backdrop-filter: blur(12px); }
+        .btn-primary { background: linear-gradient(135deg, #00E5FF 0%, #00B8CC 100%); color: #050811; transition: all 0.3s ease; }
+        .btn-primary:hover { background: linear-gradient(135deg, #67F2FF 0%, #00E5FF 100%); transform: translateY(-2px); box-shadow: 0 0 25px rgba(0,229,255,0.5); }
     </style>
 </head>
-<body class="antialiased">
+<body class="antialiased selection:bg-[#00E5FF] selection:text-[#050811]">
 
     <!-- Hero Section -->
-    <section class="min-h-screen flex flex-col items-center justify-center px-6 text-center">
-        <div class="mb-8 p-4 glass rounded-3xl neon-border shadow-2xl">
-            <img src="logo.png" alt="NeuroOS Logo" class="w-24 h-24">
+    <section class="min-h-screen flex flex-col items-center justify-center px-6 text-center relative overflow-hidden py-16">
+        <div class="mb-8 p-5 glass rounded-3xl neon-border shadow-2xl">
+            <img src="logo.png" alt="NeuroOS Logo" class="w-28 h-28 object-contain">
         </div>
-        <h1 class="text-5xl md:text-7xl font-black mb-4 tracking-tighter">NeuroOS <span class="text-[#00E5FF]">Beta</span></h1>
-        <p class="text-xl md:text-2xl text-slate-400 max-w-2xl mb-12">The digital nervous system for the neurodivergent world. Focused, energy-aware, and sensory-safe.</p>
+        <h1 class="text-5xl md:text-7xl font-black mb-4 tracking-tight">NeuroOS <span class="text-[#00E5FF]">Beta</span></h1>
+        <p class="text-xl md:text-2xl text-slate-300 max-w-2xl mb-10 font-light leading-relaxed">The digital nervous system for the neurodivergent world. Focused, energy-aware, and sensory-safe.</p>
 
-        <div class="flex flex-col md:flex-row gap-4">
-            <a href="neuroos-beta-v1.0.1.apk" class="btn-primary px-10 py-4 rounded-2xl font-bold text-lg shadow-[0_0_20px_rgba(0,229,255,0.4)]">
+        <div class="flex flex-col sm:flex-row gap-4 w-full max-w-md justify-center">
+            <a href="neuroos-beta-v1.0.1.apk" class="btn-primary px-8 py-4 rounded-2xl font-black text-lg text-center shadow-[0_0_20px_rgba(0,229,255,0.3)]">
                 Download Beta APK
             </a>
-            <a href="#install" class="bg-slate-800 text-white px-10 py-4 rounded-2xl font-bold text-lg hover:bg-slate-700 transition">
+            <a href="#install" class="bg-slate-800/80 text-white px-8 py-4 rounded-2xl font-bold text-lg hover:bg-slate-700/80 transition text-center border border-slate-700">
                 Install Guide
             </a>
         </div>
-        <p class="mt-6 text-sm text-slate-500 italic">Latest Version: 1.0.1 (Build 2)</p>
+        <p class="mt-6 text-sm text-slate-400 font-mono">Latest Version: 1.0.2 (Build 3)</p>
     </section>
 
     <!-- App Tour Video -->
-    <section class="py-20 px-6 bg-slate-900/30">
+    <section class="py-20 px-6 bg-slate-900/20">
         <div class="max-w-4xl mx-auto text-center">
             <h2 class="text-3xl font-black mb-8 text-[#00E5FF]">Experience the Tour</h2>
             <div class="aspect-video rounded-3xl overflow-hidden glass neon-border shadow-2xl">
@@ -48,60 +49,106 @@
         </div>
     </section>
 
-    <!-- Features -->
+    <!-- Core Pillars -->
     <section class="py-20 px-6 max-w-6xl mx-auto">
         <h2 class="text-3xl font-black mb-12 text-center">Core Pillars</h2>
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div class="glass p-8 rounded-3xl neon-border">
                 <div class="text-4xl mb-4">🛡️</div>
-                <h3 class="text-xl font-bold mb-2">SensoryShield™</h3>
-                <p class="text-slate-400">One-tap emergency sanctuary to prevent sensory meltdowns and digital overwhelm.</p>
+                <h3 class="text-xl font-bold mb-2 text-[#00E5FF]">SensoryShield™</h3>
+                <p class="text-slate-300 text-sm leading-relaxed">One-tap emergency sanctuary using grayscale, soft lighting, and strict notification filtering to prevent meltdowns.</p>
             </div>
-            <div class="glass p-8 rounded-3xl neon-border">
+            <div class="glass p-8 rounded-3xl purple-border">
                 <div class="text-4xl mb-4">🔋</div>
-                <h3 class="text-xl font-bold mb-2">Energy-Aware</h3>
-                <p class="text-slate-400">Manage your weekly tasks based on your current mental battery, not just the clock.</p>
+                <h3 class="text-xl font-bold mb-2 text-[#A855F7]">Energy-Aware Planner</h3>
+                <p class="text-slate-300 text-sm leading-relaxed">Schedule your week based on your current mental battery cost instead of rigid hourly clocks.</p>
             </div>
             <div class="glass p-8 rounded-3xl neon-border">
                 <div class="text-4xl mb-4">🏝️</div>
-                <h3 class="text-xl font-bold mb-2">Adventure Mode</h3>
-                <p class="text-slate-400">An immersive, child-safe island that turns daily routines into gamified missions.</p>
+                <h3 class="text-xl font-bold mb-2 text-[#FFD700]">Kids Adventure Mode</h3>
+                <p class="text-slate-300 text-sm leading-relaxed">An immersive, child-safe island environment protected by a Parent Gate that gamifies daily habits.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Founder's Mission -->
+    <section class="py-20 px-6 max-w-4xl mx-auto">
+        <div class="glass p-10 rounded-3xl purple-border relative overflow-hidden">
+            <div class="flex items-center gap-3 mb-6">
+                <span class="text-3xl">🦖</span>
+                <h2 class="text-2xl font-black text-[#A855F7]">From the Founder</h2>
+            </div>
+            <blockquote class="text-lg md:text-xl text-slate-200 italic leading-relaxed mb-6">
+                "NeuroOS was born from lived experience. As a neurodivergent individual raising children and supporting family members on the ASD spectrum, I have spent years witnessing the digital friction our community faces. Current technology is often a source of overwhelm rather than support. I wanted to create something that runs on the devices we have with us every second of the day—our mobile phones—to turn them from sources of chaos into tools for clarity."
+            </blockquote>
+            <p class="text-sm font-bold text-[#00E5FF] tracking-wide uppercase">— Founder, NeuroOS Project</p>
+        </div>
+    </section>
+
+    <!-- Pricing / Freemium Access -->
+    <section class="py-20 px-6 bg-slate-900/30">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-3xl font-black mb-4">Simple, Accessible Pricing</h2>
+            <p class="text-slate-400 mb-12">Free to download with generous early-access preview options.</p>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-left">
+                <div class="glass p-8 rounded-3xl neon-border">
+                    <span class="text-xs font-bold text-[#00E5FF] uppercase tracking-wider">Monthly Option</span>
+                    <h3 class="text-3xl font-black my-2">$1.99 <span class="text-sm font-normal text-slate-400">/ month</span></h3>
+                    <p class="text-sm text-slate-300 mb-6">Full access to all focus features, routine boards, and AI companion insights.</p>
+                    <ul class="text-xs text-slate-400 space-y-2">
+                        <li>✓ Complete 7-Day Planner</li>
+                        <li>✓ Unlimited Kids Islands</li>
+                        <li>✓ Predictive AI Insights</li>
+                    </ul>
+                </div>
+                <div class="glass p-8 rounded-3xl purple-border relative">
+                    <span class="bg-[#A855F7] text-black text-xs font-black px-3 py-1 rounded-full absolute top-6 right-6 uppercase">Best Value</span>
+                    <span class="text-xs font-bold text-[#A855F7] uppercase tracking-wider">Lifetime Option</span>
+                    <h3 class="text-3xl font-black my-2">$15.00 <span class="text-sm font-normal text-slate-400">one-time</span></h3>
+                    <p class="text-sm text-slate-300 mb-6">Pay once, own forever. Includes all future mobile feature updates.</p>
+                    <ul class="text-xs text-slate-400 space-y-2">
+                        <li>✓ Everything in Monthly</li>
+                        <li>✓ Lifetime Access Guarantee</li>
+                        <li>✓ Early Access to Desktop OS Beta</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </section>
 
     <!-- Installation Guide -->
-    <section id="install" class="py-20 px-6 bg-slate-900/50">
-        <div class="max-w-4xl mx-auto">
-            <h2 class="text-3xl font-black mb-8">How to Install</h2>
-            <div class="space-y-6 text-slate-300">
-                <div class="flex gap-4">
-                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-[#00E5FF] text-black font-bold flex items-center justify-center">1</span>
-                    <p>Download the <strong>.apk</strong> file using the button above directly on your Android device.</p>
+    <section id="install" class="py-20 px-6 max-w-4xl mx-auto">
+        <h2 class="text-3xl font-black mb-8 text-center">How to Install</h2>
+        <div class="glass p-8 rounded-3xl neon-border space-y-6 text-slate-300">
+            <div class="flex gap-4 items-start">
+                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-[#00E5FF] text-[#050811] font-bold flex items-center justify-center mt-1">1</span>
+                <div>
+                    <p class="font-bold text-white">Download the Beta APK</p>
+                    <p class="text-sm text-slate-400">Tap the "Download Beta APK" button at the top of this page on your Android device.</p>
                 </div>
-                <div class="flex gap-4">
-                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-[#00E5FF] text-black font-bold flex items-center justify-center">2</span>
-                    <p>Open the downloaded file. Your phone may say "Install unknown apps." Tap <strong>Settings</strong> and toggle on "Allow from this source."</p>
+            </div>
+            <div class="flex gap-4 items-start">
+                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-[#00E5FF] text-[#050811] font-bold flex items-center justify-center mt-1">2</span>
+                <div>
+                    <p class="font-bold text-white">Allow Installation from Source</p>
+                    <p class="text-sm text-slate-400">Open the file. If prompted about "Install unknown apps," tap <strong>Settings</strong> and enable "Allow from this source."</p>
                 </div>
-                <div class="flex gap-4">
-                    <span class="flex-shrink-0 w-8 h-8 rounded-full bg-[#00E5FF] text-black font-bold flex items-center justify-center">3</span>
-                    <p>Go back and tap <strong>Install</strong>. Once finished, launch NeuroOS from your app drawer!</p>
+            </div>
+            <div class="flex gap-4 items-start">
+                <span class="flex-shrink-0 w-8 h-8 rounded-full bg-[#00E5FF] text-[#050811] font-bold flex items-center justify-center mt-1">3</span>
+                <div>
+                    <p class="font-bold text-white">Install & Explore</p>
+                    <p class="text-sm text-slate-400">Tap <strong>Install</strong>. Once complete, launch NeuroOS and begin your journey!</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Mission -->
-    <section class="py-20 px-6 text-center max-w-4xl mx-auto">
-        <p class="text-2xl italic text-slate-400">"We turn the phone from a source of chaos into a tool for clarity."</p>
-        <div class="mt-8 flex flex-col items-center">
-            <div class="w-12 h-1 bg-[#00E5FF] mb-4"></div>
-            <p class="font-bold">Lived Experience Powered Development</p>
-        </div>
-    </section>
-
-    <footer class="py-10 text-center text-slate-600 text-sm">
-        &copy; 2026 NeuroOS Project. All rights reserved.
+    <!-- Footer -->
+    <footer class="py-12 text-center text-slate-500 text-sm border-t border-slate-900/50">
+        <p class="mb-2">&copy; 2026 NeuroOS Project. Technology that understands your brain.</p>
+        <p class="text-xs text-slate-600">Built with ❤️ for the neurodivergent community.</p>
     </footer>
 
 </body>
