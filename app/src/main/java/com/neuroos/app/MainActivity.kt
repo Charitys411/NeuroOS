@@ -2927,10 +2927,44 @@ private fun SettingSwitch(title: String, checked: Boolean, onCheckedChange: (Boo
 }
 
 @Composable
+fun RawVideoCard(
+    rawResId: Int,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    Card(
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f)),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)),
+        modifier = modifier.fillMaxWidth().height(220.dp)
+    ) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            AndroidView(
+                factory = { ctx ->
+                    android.widget.VideoView(ctx).apply {
+                        val uri = android.net.Uri.parse("android.resource://${ctx.packageName}/$rawResId")
+                        setVideoURI(uri)
+                        setOnPreparedListener { mp ->
+                            mp.isLooping = true
+                            mp.setVolume(0f, 0f) // Mute background audio
+                            start()
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(24.dp))
+            )
+        }
+    }
+}
+
+@Composable
 private fun AboutScreen() {
     Column(verticalArrangement = Arrangement.spacedBy(24.dp), modifier = Modifier.verticalScroll(rememberScrollState())) {
         SectionTitle("The NeuroOS Mission")
-        
+
+        // Live Animated Video Banner
+        RawVideoCard(rawResId = R.raw.neuro_bg_loop)
+
         Card(
             shape = RoundedCornerShape(24.dp),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.1f)),
