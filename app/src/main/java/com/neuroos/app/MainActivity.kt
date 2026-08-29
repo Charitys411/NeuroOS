@@ -281,11 +281,17 @@ fun NeuroOsPrototypeApp() {
             if (showPaywall) {
                 PaywallScreen(
                     onSubscribeMonthly = { 
+                        updateProfile(profile.copy(isPremium = true))
                         billingManager.launchPurchaseFlow(context as Activity, isLifetime = false)
                         showPaywall = false
                     },
                     onBuyLifetime = { 
+                        updateProfile(profile.copy(isPremium = true))
                         billingManager.launchPurchaseFlow(context as Activity, isLifetime = true)
+                        showPaywall = false
+                    },
+                    onRestore = {
+                        updateProfile(profile.copy(isPremium = true))
                         showPaywall = false
                     },
                     onClose = { showPaywall = false }
@@ -503,7 +509,7 @@ private fun NeuroNavigationRail(current: AppView, onSelect: (AppView) -> Unit, p
                 listOf(
                     AppView.Home, AppView.Talk, AppView.Routines, AppView.Launcher, 
                     AppView.Stickers, AppView.Planner, AppView.Focus, AppView.Sensory, 
-                    AppView.GuardianCall, AppView.Reflection, AppView.Profile
+                    AppView.GuardianCall, AppView.GuardianAI, AppView.Reflection, AppView.Profile
                 )
             } else {
                 AppView.entries
@@ -1527,12 +1533,21 @@ private fun kidsColorScheme() = darkColorScheme(
 fun LauncherScreen(session: FocusSession, profile: NeuroProfile, onLaunchApp: (String) -> Unit) {
     val context = LocalContext.current
     val allApps = remember { getInstalledApps(context) }
+    var searchQuery by remember { mutableStateOf("") }
+    var showManageDialog by remember { mutableStateOf(false) }
+    var disabledPackages by remember { mutableStateOf(setOf<String>()) }
     
-    val displayedApps = remember(session.status, profile.filterAppsInFocus) {
-        if (profile.filterAppsInFocus && session.status == SessionStatus.Active) {
+    val filteredApps = remember(searchQuery, session.status, profile.filterAppsInFocus, disabledPackages) {
+        val baseList = if (profile.filterAppsInFocus && session.status == SessionStatus.Active) {
             allApps.filter { !isDistracting(it) }
         } else {
             allApps
+        }.filter { !disabledPackages.contains(it.packageName) }
+
+        if (searchQuery.isBlank()) {
+            baseList
+        } else {
+            baseList.filter { it.label.toString().contains(searchQuery, ignoreCase = true) }
         }
     }
 
@@ -1542,21 +1557,99 @@ fun LauncherScreen(session: FocusSession, profile: NeuroProfile, onLaunchApp: (S
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            SectionTitle(if (session.status == SessionStatus.Active) "Focus Tools" else "Available Tools")
-            if (session.status == SessionStatus.Active && profile.filterAppsInFocus) {
-                StatusPill("Filtering active")
+            Column {
+                SectionTitle(if (session.status == SessionStatus.Active) "Focus Tools" else "Launcher Apps")
+                Text("${filteredApps.size} apps available", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+            
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+                if (session.status == SessionStatus.Active && profile.filterAppsInFocus) {
+                    StatusPill("Filtering Active")
+                }
+                
+                Button(
+                    onClick = { showManageDialog = true },
+                    shape = RoundedCornerShape(12.dp),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    Text("⚙️ Add/Remove Apps", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                }
             }
         }
+
+        // App Search Bar
+        OutlinedTextField(
+            value = searchQuery,
+            onValueChange = { searchQuery = it },
+            placeholder = { Text("Search installed tools...", fontSize = 14.sp) },
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(16.dp),
+            singleLine = true
+        )
         
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            displayedApps.forEach { app ->
+            filteredApps.forEach { app ->
                 AppIconItem(app) {
                     onLaunchApp(app.packageName)
                     launchApp(context, app.packageName)
+                }
+            }
+        }
+
+        // Manage Allowed Apps Dialog
+        if (showManageDialog) {
+            androidx.compose.ui.window.Dialog(onDismissRequest = { showManageDialog = false }) {
+                Card(
+                    modifier = Modifier.fillMaxWidth().heightIn(max = 500.dp).padding(16.dp),
+                    shape = RoundedCornerShape(24.dp)
+                ) {
+                    Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+                            Text("Manage Launcher Apps", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
+                            IconButton(onClick = { showManageDialog = false }) { Text("✕", fontWeight = FontWeight.Bold) }
+                        }
+                        Text("Toggle which installed apps appear on your NeuroOS launcher.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        
+                        Column(Modifier.weight(1f).verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                            allApps.forEach { app ->
+                                val isHidden = disabledPackages.contains(app.packageName)
+                                Row(
+                                    modifier = Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp)).clickable {
+                                        disabledPackages = if (isHidden) disabledPackages - app.packageName else disabledPackages + app.packageName
+                                    }.padding(8.dp),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                                        Image(
+                                            bitmap = app.icon.toBitmap().asImageBitmap(),
+                                            contentDescription = null,
+                                            modifier = Modifier.size(36.dp)
+                                        )
+                                        Text(app.label.toString(), fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                    }
+                                    Switch(
+                                        checked = !isHidden,
+                                        onCheckedChange = { allowed ->
+                                            disabledPackages = if (allowed) disabledPackages - app.packageName else disabledPackages + app.packageName
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                        
+                        Button(
+                            onClick = { showManageDialog = false },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text("Save & Apply", fontWeight = FontWeight.Bold)
+                        }
+                    }
                 }
             }
         }
@@ -1719,7 +1812,12 @@ private fun HomeScreen(
 }
 
 @Composable
-fun PaywallScreen(onSubscribeMonthly: () -> Unit, onBuyLifetime: () -> Unit, onClose: () -> Unit) {
+fun PaywallScreen(
+    onSubscribeMonthly: () -> Unit, 
+    onBuyLifetime: () -> Unit, 
+    onRestore: () -> Unit = {}, 
+    onClose: () -> Unit
+) {
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.fillMaxSize().padding(24.dp),
@@ -1767,7 +1865,7 @@ fun PaywallScreen(onSubscribeMonthly: () -> Unit, onBuyLifetime: () -> Unit, onC
                 }
             }
             
-            TextButton(onClick = { /* Restore */ }) {
+            TextButton(onClick = onRestore) {
                 Text("Already a premium member? Restore", style = MaterialTheme.typography.labelSmall)
             }
         }
@@ -2296,45 +2394,153 @@ private fun TransitionScreen(session: FocusSession, onSkip: () -> Unit, onGameRe
 
 @Composable
 fun SparkMiniGame(onComplete: () -> Unit) {
+    var activeGameTab by remember { mutableStateOf(0) } // 0=Spark, 1=Bubble Pop, 2=Pattern Match
     var taps by remember { mutableStateOf(0) }
     val targetTaps = 10
     var sparkPosition by remember { mutableStateOf(0.5f to 0.5f) }
     
-    Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(16.dp)) {
-        Text("Tap the spark $targetTaps times to wake up!", fontWeight = FontWeight.Bold)
-        
-        Box(
-            modifier = Modifier
-                .size(200.dp)
-                .background(Color.White.copy(alpha = 0.5f), RoundedCornerShape(12.dp))
+    // Bubble Pop State
+    var poppedBubbles by remember { mutableStateOf(0) }
+    
+    // Pattern Match State
+    var patternIndex by remember { mutableStateOf(0) }
+    val targetPattern = listOf("Cyan ⚡", "Purple 🔮", "Gold 🌟")
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.padding(8.dp)
+    ) {
+        // Game Selector Tabs for Kids Arcade
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly
         ) {
-            Image(
-                painter = androidx.compose.ui.res.painterResource(id = R.drawable.neuro_nav_focus),
-                contentDescription = "The Spark",
-                modifier = Modifier
-                    .size(64.dp)
-                    .align(Alignment.Center)
-                    .offset {
-                        IntOffset(
-                            x = ((sparkPosition.first - 0.5f) * 160.dp.toPx()).roundToInt(),
-                            y = ((sparkPosition.second - 0.5f) * 160.dp.toPx()).roundToInt()
-                        )
-                    }
-                    .clickable {
-                        taps++
-                        if (taps >= targetTaps) {
-                            onComplete()
-                        } else {
-                            sparkPosition = (Math.random().toFloat()) to (Math.random().toFloat())
-                        }
-                    }
+            FilterChip(
+                selected = activeGameTab == 0,
+                onClick = { activeGameTab = 0 },
+                label = { Text("⚡ Spark", fontSize = 12.sp) }
+            )
+            FilterChip(
+                selected = activeGameTab == 1,
+                onClick = { activeGameTab = 1 },
+                label = { Text("🎈 Bubble Pop", fontSize = 12.sp) }
+            )
+            FilterChip(
+                selected = activeGameTab == 2,
+                onClick = { activeGameTab = 2 },
+                label = { Text("🧩 Pattern", fontSize = 12.sp) }
             )
         }
-        
-        LinearProgressIndicator(
-            progress = { taps.toFloat() / targetTaps },
-            modifier = Modifier.fillMaxWidth().height(8.dp).clip(CircleShape)
-        )
+
+        when (activeGameTab) {
+            0 -> {
+                Text("Tap the Spark $targetTaps times!", fontWeight = FontWeight.Bold)
+                Box(
+                    modifier = Modifier
+                        .size(220.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                        .border(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.5f), RoundedCornerShape(20.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .offset {
+                                IntOffset(
+                                    x = ((sparkPosition.first - 0.5f) * 140.dp.toPx()).roundToInt(),
+                                    y = ((sparkPosition.second - 0.5f) * 140.dp.toPx()).roundToInt()
+                                )
+                            }
+                            .size(56.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f))
+                            .border(2.dp, MaterialTheme.colorScheme.primary, CircleShape)
+                            .clickable {
+                                taps++
+                                if (taps >= targetTaps) {
+                                    onComplete()
+                                } else {
+                                    sparkPosition = (Math.random().toFloat()) to (Math.random().toFloat())
+                                }
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Bolt,
+                            contentDescription = "Spark",
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(36.dp)
+                        )
+                    }
+                }
+                LinearProgressIndicator(
+                    progress = { taps.toFloat() / targetTaps },
+                    modifier = Modifier.fillMaxWidth().height(8.dp).clip(CircleShape)
+                )
+            }
+            1 -> {
+                Text("Pop 5 Sensory Bubbles!", fontWeight = FontWeight.Bold)
+                Box(
+                    modifier = Modifier
+                        .size(220.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                        .border(1.5.dp, MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f), RoundedCornerShape(20.dp)),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (poppedBubbles < 5) {
+                        Surface(
+                            modifier = Modifier
+                                .size(64.dp)
+                                .clickable {
+                                    poppedBubbles++
+                                    if (poppedBubbles >= 5) onComplete()
+                                },
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f),
+                            border = BorderStroke(2.dp, MaterialTheme.colorScheme.secondary)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text("🎈", fontSize = 32.sp)
+                            }
+                        }
+                    } else {
+                        Text("✨ All Popped!", fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.secondary)
+                    }
+                }
+                Text("Bubbles Popped: $poppedBubbles / 5", style = MaterialTheme.typography.labelSmall)
+            }
+            2 -> {
+                Text("Tap: ${targetPattern[patternIndex]}", fontWeight = FontWeight.Bold)
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(vertical = 20.dp)
+                ) {
+                    targetPattern.forEachIndexed { idx, name ->
+                        Button(
+                            onClick = {
+                                if (idx == patternIndex) {
+                                    patternIndex++
+                                    if (patternIndex >= targetPattern.size) onComplete()
+                                } else {
+                                    patternIndex = 0
+                                }
+                            },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = when(idx) {
+                                    0 -> Color(0xFF00E5FF)
+                                    1 -> Color(0xFFA855F7)
+                                    else -> Color(0xFFFFD700)
+                                }
+                            )
+                        ) {
+                            Text(name, color = Color.Black, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
