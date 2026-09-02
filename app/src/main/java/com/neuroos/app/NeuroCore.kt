@@ -11,6 +11,8 @@ data class VisualProfile(
 
 enum class AppThemeMode {
     Default,
+    Teens,
+    Work,
     Kids,
     Adult
 }
@@ -91,7 +93,7 @@ data class MemoryNeed(
 )
 
 data class NeuroProfile(
-    val studentSegment: String = "college",
+    val studentSegment: String = "adaptive",
     val focusNeeds: Set<String> = setOf("task-initiation", "time-awareness", "reading-support"),
     val sensoryProfile: VisualProfile = VisualProfiles.calm,
     val readingSupport: String = "comfortable-spacing",

@@ -619,8 +619,12 @@ private fun TopBar(view: AppView, profile: NeuroProfile, session: FocusSession) 
         Spacer(Modifier.width(12.dp))
         
         Column(modifier = Modifier.weight(1f)) {
-            val isKidsMode = profile.themeMode == AppThemeMode.Kids
-            val segmentLabel = if (isKidsMode) "KIDS EXPLORER" else profile.studentSegment.uppercase()
+            val segmentLabel = when (profile.themeMode) {
+                AppThemeMode.Kids -> "KIDS EXPLORER"
+                AppThemeMode.Teens -> "TEEN VELOCITY"
+                AppThemeMode.Work -> "EXECUTIVE WORK"
+                else -> profile.studentSegment.uppercase()
+            }
             Text(
                 text = "NeuroOS • $segmentLabel",
                 color = MaterialTheme.colorScheme.secondary,
@@ -1361,7 +1365,7 @@ private fun daylightColorScheme() = lightColorScheme(
     onPrimaryContainer = Color(0xFF006064),
     secondary = Color(0xFF7A44AD),
     onSecondary = Color.White,
-    secondaryContainer = Color(0xFFE0F7FA), // Light Cyan/Blue mix
+    secondaryContainer = Color(0xFFE0F7FA),
     onSecondaryContainer = Color(0xFF006064),
     tertiary = Color(0xFFB8860B),
     onTertiary = Color.White,
@@ -1373,6 +1377,44 @@ private fun daylightColorScheme() = lightColorScheme(
     outline = Color(0xFFD1D5DB),
     outlineVariant = Color(0xFFE5E7EB),
     error = Color(0xFFB4233B)
+)
+
+private fun teensColorScheme() = darkColorScheme(
+    primary = Color(0xFF00E5FF), // Cyber Cyan
+    onPrimary = Color.Black,
+    primaryContainer = Color(0xFF1E1B4B),
+    onPrimaryContainer = Color(0xFFE0E7FF),
+    secondary = Color(0xFFD946EF), // Neon Magenta
+    onSecondary = Color.White,
+    secondaryContainer = Color(0xFF31103F),
+    onSecondaryContainer = Color(0xFFA855F7),
+    tertiary = Color(0xFFA855F7), // Kinetic Violet
+    onTertiary = Color.White,
+    background = Color(0xFF030712), // Obsidian Canvas
+    surface = Color(0xFF111827),
+    onSurface = Color.White,
+    surfaceVariant = Color(0xFF1F2937),
+    onSurfaceVariant = Color(0xFFE5E7EB),
+    error = Color(0xFFFF453A)
+)
+
+private fun workColorScheme() = darkColorScheme(
+    primary = Color(0xFF0EA5E9), // Executive Slate Blue
+    onPrimary = Color.White,
+    primaryContainer = Color(0xFF0369A1),
+    onPrimaryContainer = Color(0xFFE0F2FE),
+    secondary = Color(0xFF6366F1), // Indigo Precision
+    onSecondary = Color.White,
+    secondaryContainer = Color(0xFF1E1B4B),
+    onSecondaryContainer = Color(0xFFC7D2FE),
+    tertiary = Color(0xFF10B981), // Emerald Pulse
+    onTertiary = Color.Black,
+    background = Color(0xFF0F172A), // Slate Obsidian
+    surface = Color(0xFF1E293B),
+    onSurface = Color.White,
+    surfaceVariant = Color(0xFF334155),
+    onSurfaceVariant = Color(0xFFCBD5E1),
+    error = Color(0xFFEF4444)
 )
 
 
@@ -3245,8 +3287,11 @@ private fun SectionTitle(title: String) {
 }
 
 private fun colorSchemeFor(profile: NeuroProfile, darkTheme: Boolean): ColorScheme {
-    if (profile.themeMode == AppThemeMode.Kids) {
-        return kidsColorScheme()
+    when (profile.themeMode) {
+        AppThemeMode.Kids -> return kidsColorScheme()
+        AppThemeMode.Teens -> return teensColorScheme()
+        AppThemeMode.Work -> return workColorScheme()
+        else -> {}
     }
 
     return when (profile.sensoryProfile.id) {
