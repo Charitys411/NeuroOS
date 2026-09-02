@@ -931,27 +931,109 @@ fun RoutineBoardScreen(onEarnTokens: () -> Unit, speak: (String) -> Unit, isPrem
 fun StickerBookScreen(
     profile: NeuroProfile,
     onBuySticker: (Sticker) -> Unit,
-    onClaimRobux: (Int) -> Unit, // Using Int just to keep signature simple
+    onClaimRobux: (Int) -> Unit,
     speak: (String) -> Unit
 ) {
     Column(verticalArrangement = Arrangement.spacedBy(24.dp), modifier = Modifier.verticalScroll(rememberScrollState())) {
-        SectionTitle("Your Reward Collection")
-        
-        // Balance Cards
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            StatCard("Tokens", "✧${profile.tokens}", Modifier.weight(1f))
-            StatCard("Robux", "R$ ${profile.robuxBalance}", Modifier.weight(1f))
+        val rewardTitle = when (profile.themeMode) {
+            AppThemeMode.Teens -> "Teen Velocity Rewards & Gaming Passes"
+            AppThemeMode.Work -> "Executive Wellness & Productivity Rewards"
+            AppThemeMode.Kids -> "Kids Adventure Rewards & Token Shop"
+            else -> if (profile.studentSegment.equals("college", ignoreCase = true)) "Campus Focus Rewards & Social Passes" else "NeuroOS Universal Rewards"
         }
-
-        Button(
-            onClick = { onClaimRobux(10) },
-            enabled = profile.tokens >= 100,
+        
+        SectionTitle(rewardTitle)
+        
+        // Token Balance Header
+        Card(
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f)),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.4f)),
             modifier = Modifier.fillMaxWidth()
         ) {
-            Text("Exchange 100 Tokens for 10 Robux")
+            Row(
+                Modifier.padding(20.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text("Focus Token Balance", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("✧ ${profile.tokens} Tokens", style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.primary)
+                }
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f)
+                ) {
+                    Text("⚡ Earned", modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp), fontWeight = FontWeight.Bold, fontSize = 12.sp, color = MaterialTheme.colorScheme.primary)
+                }
+            }
         }
 
-        SectionTitle("Sticker Shop (50 ✧ each)")
+        // Tailored Population Reward Section
+        SectionTitle("Redeemable Focus Earnings")
+        
+        val populationRewards = when (profile.themeMode) {
+            AppThemeMode.Teens -> listOf(
+                "🎮 100 V-Bucks / Gaming Pass" to 150,
+                "🎧 1-Month Spotify / Music" to 200,
+                "⚡ Guilt-Free 1-Hour Gaming Pass" to 100,
+                "🎨 Cyber Anime Sticker Pack" to 50
+            )
+            AppThemeMode.Work -> listOf(
+                "📵 Guilt-Free Unplugged Evening (No Email)" to 150,
+                "☕ Espresso / Starbucks Reward ($5)" to 200,
+                "🧘 15-Min Executive Wellness Break" to 75,
+                "🌱 $5 Donation to Neurodivergent Advocacy" to 250
+            )
+            AppThemeMode.Kids -> listOf(
+                "🪙 10 Robux / Roblox Pass" to 100,
+                "🦖 Dinosaur & Space Sticker Pack" to 50,
+                "🎈 Unlock 'Bubble Sensory Pop' Game" to 75,
+                "🧸 Parent Toy Goal" to 300
+            )
+            else -> listOf(
+                "🧋 Campus Boba / Coffee Pass ($5)" to 150,
+                "🍔 DoorDash Snack Pass" to 250,
+                "🎉 Guilt-Free Social Outing Pass" to 100,
+                "🎓 Academic Focus Streak Badge" to 50
+            )
+        }
+
+        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            populationRewards.forEach { (rewardLabel, cost) ->
+                val canAfford = profile.tokens >= cost
+                OutlinedCard(
+                    shape = RoundedCornerShape(16.dp),
+                    modifier = Modifier.fillMaxWidth().clickable {
+                        if (canAfford) {
+                            speak("Redeemed $rewardLabel for $cost tokens!")
+                        } else {
+                            speak("You need ${cost - profile.tokens} more tokens for $rewardLabel")
+                        }
+                    }
+                ) {
+                    Row(
+                        Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column(Modifier.weight(1f)) {
+                            Text(rewardLabel, fontWeight = FontWeight.Bold, style = MaterialTheme.typography.titleMedium)
+                            Text("Cost: $cost Tokens", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Button(
+                            onClick = { speak("Redeemed $rewardLabel!") },
+                            enabled = canAfford,
+                            shape = RoundedCornerShape(12.dp)
+                        ) {
+                            Text(if (canAfford) "Claim" else "Need $cost ✧", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+        }
+
+        SectionTitle("Sticker Collection")
         FlowRow(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -964,37 +1046,25 @@ fun StickerBookScreen(
                     modifier = Modifier
                         .size(100.dp)
                         .clickable { 
-                            if (isLocked) { /* handled by visual hint */ }
-                            else if (!owned) onBuySticker(sticker) 
+                            if (!owned) onBuySticker(sticker) 
                             else speak("You already have ${sticker.name}")
                         },
                     colors = CardDefaults.cardColors(
                         containerColor = when {
                             owned -> MaterialTheme.colorScheme.primaryContainer
-                            isLocked -> MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
                             else -> MaterialTheme.colorScheme.surface
                         }
                     ),
-                    border = if (!owned && !isLocked) BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant) else null
+                    border = if (!owned) BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant) else null
                 ) {
                     Column(
                         Modifier.fillMaxSize(),
                         horizontalAlignment = Alignment.CenterHorizontally,
                         verticalArrangement = Arrangement.Center
                     ) {
-                        if (isLocked) {
-                            Text("🔒", fontSize = 24.sp)
-                            Text(
-                                text = "Premium", 
-                                style = MaterialTheme.typography.labelSmall, 
-                                fontSize = 8.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        } else {
-                            Text(sticker.emoji, fontSize = 40.sp, modifier = Modifier.alpha(if (owned) 1f else 0.3f))
-                            Text(sticker.name, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface)
-                            if (owned) Text("OWNED", fontSize = 8.sp, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.primary)
-                        }
+                        Text(sticker.emoji, fontSize = 40.sp, modifier = Modifier.alpha(if (owned) 1f else 0.3f))
+                        Text(sticker.name, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface)
+                        if (owned) Text("OWNED", fontSize = 8.sp, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
