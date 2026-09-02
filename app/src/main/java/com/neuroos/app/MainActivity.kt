@@ -398,6 +398,7 @@ fun NeuroOsPrototypeApp() {
                                 )
 
                                 AppView.Talk -> CommunicationBoardScreen(
+                                    profile = profile,
                                     speak = ::speak, 
                                     isPremium = profile.isPremium, 
                                     onGoPremium = { showPaywall = true }
@@ -798,13 +799,20 @@ fun PlannerCard(item: PlannerItem, speak: (String) -> Unit) {
 }
 
 @Composable
-fun CommunicationBoardScreen(speak: (String) -> Unit, isPremium: Boolean, onGoPremium: () -> Unit) {
-    val cards = CommunicationRepository.needs
+fun CommunicationBoardScreen(profile: NeuroProfile, speak: (String) -> Unit, isPremium: Boolean, onGoPremium: () -> Unit) {
+    val cards = NeuroRepository.getTalkCards(profile.themeMode)
     
+    val categoryTitle = when (profile.themeMode) {
+        AppThemeMode.Kids -> "Pediatric Tactile Talk Board (Ages 4-13)"
+        AppThemeMode.Teens -> "Teen Expressive Communication"
+        AppThemeMode.Work -> "Executive Non-Verbal & Focus Nudges"
+        else -> "Tactile Communication Board (AAC)"
+    }
+
     Column(verticalArrangement = Arrangement.spacedBy(24.dp), modifier = Modifier.verticalScroll(rememberScrollState())) {
-        SectionTitle("Talk with Pictures")
+        SectionTitle(categoryTitle)
         Text(
-            text = "Tap a picture to hear the word and sound!", 
+            text = "Tap any picture card to hear the word, phonics, and vocal sound!", 
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -815,7 +823,7 @@ fun CommunicationBoardScreen(speak: (String) -> Unit, isPremium: Boolean, onGoPr
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             cards.forEachIndexed { index, card ->
-                val isLocked = index >= 4 && !isPremium
+                val isLocked = index >= 6 && !isPremium
                 CommunicationItem(card, speak, isLocked, onGoPremium)
             }
         }
@@ -823,35 +831,38 @@ fun CommunicationBoardScreen(speak: (String) -> Unit, isPremium: Boolean, onGoPr
 }
 
 @Composable
-fun CommunicationItem(card: CommunicationCard, speak: (String) -> Unit, isLocked: Boolean, onGoPremium: () -> Unit) {
+fun CommunicationItem(card: TalkCard, speak: (String) -> Unit, isLocked: Boolean, onGoPremium: () -> Unit) {
     Card(
         modifier = Modifier
-            .size(140.dp)
+            .size(135.dp)
             .clickable { 
                 if (isLocked) onGoPremium()
-                else speak("${card.phonics}... ${card.label}") 
+                else speak("${card.phonics}... ${card.word}!") 
             },
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
             containerColor = if (isLocked) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f) else MaterialTheme.colorScheme.surface
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (isLocked) 0.dp else 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = if (isLocked) 0.dp else 4.dp),
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f))
     ) {
         Column(
-            Modifier.fillMaxSize().padding(12.dp).alpha(if (isLocked) 0.4f else 1f),
+            Modifier.fillMaxSize().padding(10.dp).alpha(if (isLocked) 0.4f else 1f),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
         ) {
             if (isLocked) {
-                Text("🔒", fontSize = 48.sp)
+                Text("🔒", fontSize = 40.sp)
                 Text("Premium", style = MaterialTheme.typography.labelSmall)
             } else {
-                Text(card.icon, fontSize = 64.sp)
-                Spacer(Modifier.height(8.dp))
+                Text(card.emoji, fontSize = 52.sp)
+                Spacer(Modifier.height(6.dp))
                 Text(
-                    text = card.label,
+                    text = card.word,
                     fontWeight = FontWeight.Black,
-                    color = MaterialTheme.colorScheme.onSurface
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center
                 )
             }
         }
@@ -1900,19 +1911,27 @@ private fun HomeScreen(
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
         ) {
             Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                NeuroRepository.dailySchedule.forEach { block ->
+                NeuroRepository.getSchedule(profile.themeMode, profile.studentSegment).forEach { block ->
                     FlowBlock(block, speak)
                 }
             }
         }
 
-        SectionTitle("Classes")
-        NeuroRepository.classes.forEach { studyClass ->
+        val currentClasses = NeuroRepository.getClasses(profile.themeMode, profile.studentSegment)
+        val sectionHeader = when (profile.themeMode) {
+            AppThemeMode.Kids -> "Learning Islands"
+            AppThemeMode.Teens -> "High School Subjects"
+            AppThemeMode.Work -> "Executive Projects"
+            else -> "Classes & Subjects"
+        }
+        SectionTitle(sectionHeader)
+        currentClasses.forEach { studyClass ->
             ClassRow(studyClass, speak)
         }
 
-        SectionTitle("Study tasks")
-        NeuroRepository.tasks.forEach { task ->
+        val currentTasks = NeuroRepository.getTasks(profile.themeMode, profile.studentSegment)
+        SectionTitle("Focus Tasks")
+        currentTasks.forEach { task ->
             TaskRow(
                 task = task,
                 selected = task.id == selectedTask.id,

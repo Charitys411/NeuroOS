@@ -364,6 +364,15 @@ object VisualProfiles {
     fun find(id: String): VisualProfile = all.firstOrNull { it.id == id } ?: calm
 }
 
+data class TalkCard(
+    val id: String,
+    val word: String,
+    val emoji: String,
+    val phonics: String,
+    val category: String = "needs",
+    val isPremium: Boolean = false
+)
+
 object NeuroRepository {
     val stickerCatalog = listOf(
         Sticker("s1", "Happy Dino", "🦖", "Common"),
@@ -371,21 +380,6 @@ object NeuroRepository {
         Sticker("s3", "Gold Star", "⭐", "Rare"),
         Sticker("s4", "Unicorn", "🦄", "Epic"),
         Sticker("s5", "Robot", "🤖", "Rare")
-    )
-
-    val adultFinances = listOf(
-        FinancialEntry("f1", "Monthly Income", 3200.0, null, "income"),
-        FinancialEntry("f2", "Rent Payment", 1200.0, "Aug 15", "bill"),
-        FinancialEntry("f3", "Electric Bill", 85.0, "Aug 12", "bill"),
-        FinancialEntry("f4", "Grocery Budget", 400.0, null, "bill")
-    )
-
-    val dailySchedule = listOf(
-        ScheduleBlock("1", "Morning Routine", "8:00 AM", "life"),
-        ScheduleBlock("2", "Deep Focus: Study", "9:30 AM", "work"),
-        ScheduleBlock("3", "Sensory Reset", "11:00 AM", "sensory"),
-        ScheduleBlock("4", "Lunch & Social", "12:00 PM", "life"),
-        ScheduleBlock("5", "Collaborative Work", "1:30 PM", "work")
     )
 
     val weeklyPlanner = listOf(
@@ -401,79 +395,201 @@ object NeuroRepository {
         PlannerItem("p10", "DND Session / Reward", "Fri", 1)
     )
 
-    val classes = listOf(
-        StudyClass(
-            id = "cog-210",
-            title = "Cognitive Psychology",
-            accentHex = "#A855F7", // Updated to Electric Purple Brand
-            nextBlock = "Today 2:00 PM",
-            priority = "Chapter 8 retrieval practice"
-        ),
-        StudyClass(
-            id = "bio-144",
-            title = "Biology Lab",
-            accentHex = "#FFD54F",
-            nextBlock = "Tomorrow 10:30 AM",
-            priority = "Lab report outline"
-        ),
-        StudyClass(
-            id = "eng-302",
-            title = "Writing Seminar",
-            accentHex = "#A7494F",
-            nextBlock = "Fri 11:00 AM",
-            priority = "Argument map revision"
-        )
+    val adultFinances = listOf(
+        FinancialEntry("f1", "Monthly Income", 3200.0, null, "income"),
+        FinancialEntry("f2", "Rent Payment", 1200.0, "Aug 15", "bill"),
+        FinancialEntry("f3", "Electric Bill", 85.0, "Aug 12", "bill"),
+        FinancialEntry("f4", "Grocery Budget", 400.0, null, "bill")
     )
 
-    val tasks = listOf(
-        StudyTask(
-            id = "task-cog-retrieval",
-            classId = "cog-210",
-            course = "Cognitive Psychology",
-            title = "Prepare for Chapter 8 quiz",
-            due = "Tonight",
-            estimateMinutes = 35,
-            energy = "medium",
-            steps = listOf(
-                "Open Chapter 8 notes",
-                "Mark three concepts that feel unclear",
-                "Answer five retrieval questions",
-                "Write one summary card",
-                "Choose the next review time"
-            )
-        ),
-        StudyTask(
-            id = "task-bio-outline",
-            classId = "bio-144",
-            course = "Biology Lab",
-            title = "Outline lab report discussion",
-            due = "Tomorrow",
-            estimateMinutes = 25,
-            energy = "low",
-            steps = listOf(
-                "Open the lab rubric",
-                "Write the claim in one sentence",
-                "Add two evidence bullets",
-                "List one question for the TA"
-            )
-        ),
-        StudyTask(
-            id = "task-eng-map",
-            classId = "eng-302",
-            course = "Writing Seminar",
-            title = "Revise essay argument map",
-            due = "Friday",
-            estimateMinutes = 45,
-            energy = "high",
-            steps = listOf(
-                "Open the current argument map",
-                "Circle the thesis",
-                "Check each paragraph against the thesis",
-                "Move one weak support point",
-                "Save the revision note"
+    // Dynamic Mode-Specific Talk Cards (Pediatric 4-13 AAC & Non-Verbal Adult AAC)
+    fun getTalkCards(mode: AppThemeMode): List<TalkCard> = when (mode) {
+        AppThemeMode.Kids -> listOf(
+            // Needs
+            TalkCard("k1", "Water", "💧", "Wuh-ter", "needs"),
+            TalkCard("k2", "Food", "🍎", "Fuu-d", "needs"),
+            TalkCard("k3", "Bathroom", "🚽", "Bath-room", "needs"),
+            TalkCard("k4", "Help", "🙋", "Hel-p", "needs"),
+            TalkCard("k5", "Tired", "😴", "Tye-urd", "needs"),
+            TalkCard("k6", "Hurt", "🩹", "Her-t", "needs"),
+            // Emotions
+            TalkCard("k7", "Happy", "😊", "Hap-pee", "emotions"),
+            TalkCard("k8", "Sad", "😢", "Sa-d", "emotions"),
+            TalkCard("k9", "Frustrated", "😡", "Frus-tray-ted", "emotions"),
+            TalkCard("k10", "Overwhelmed", "😰", "Oh-ver-whelmed", "emotions"),
+            TalkCard("k11", "Too Loud", "🤫", "Too Lowd", "emotions"),
+            // Actions & Social
+            TalkCard("k12", "Play Time", "🧸", "Play Time", "social"),
+            TalkCard("k13", "Tablet Time", "📱", "Tab-let", "social"),
+            TalkCard("k14", "Stop", "🛑", "St-op", "social"),
+            TalkCard("k15", "More Please", "🤝", "Mor Please", "social"),
+            TalkCard("k16", "Hug", "🫂", "Hu-g", "social")
+        )
+        AppThemeMode.Teens -> listOf(
+            TalkCard("t1", "Need a Break", "⏸️", "Need a break", "needs"),
+            TalkCard("t2", "Overstimulated", "🤫", "Sensory overload", "needs"),
+            TalkCard("t3", "Text Me Instead", "💬", "Please text me", "social"),
+            TalkCard("t4", "Need Assistance", "🙋", "Need help", "needs"),
+            TalkCard("t5", "Low Battery", "🔋", "Low energy", "needs"),
+            TalkCard("t6", "Quiet Space", "🚪", "Need quiet space", "needs"),
+            TalkCard("t7", "Water", "💧", "Water", "needs"),
+            TalkCard("t8", "Headache", "🩹", "Headache", "needs")
+        )
+        AppThemeMode.Work -> listOf(
+            TalkCard("w1", "Focus Break", "⏸️", "Taking 10m focus break", "needs"),
+            TalkCard("w2", "Quiet Space", "🚪", "In quiet focus space", "needs"),
+            TalkCard("w3", "Email/Text Instead", "💬", "Please email or text instead", "social"),
+            TalkCard("w4", "Overstimulated", "🔋", "Low battery, overstimulated", "needs"),
+            TalkCard("w5", "Coffee Reset", "☕", "Coffee reset", "needs"),
+            TalkCard("w6", "Need Assistance", "🙋", "Need assistance on project", "needs")
+        )
+        else -> listOf(
+            TalkCard("a1", "Water", "💧", "Water", "needs"),
+            TalkCard("a2", "Meal Time", "🍱", "Food", "needs"),
+            TalkCard("a3", "Bathroom", "🚽", "Bathroom", "needs"),
+            TalkCard("a4", "Headache / Pain", "🩹", "Pain", "needs"),
+            TalkCard("a5", "Need a Break", "⏸️", "Need a break", "needs"),
+            TalkCard("a6", "Overstimulated", "🤫", "Sensory overload", "needs"),
+            TalkCard("a7", "Text Me Instead", "💬", "Please text me", "social"),
+            TalkCard("a8", "Need Help", "🙋", "Need help", "needs")
+        )
+    }
+
+    // Dynamic Mode-Specific Schedules
+    fun getSchedule(mode: AppThemeMode, segment: String): List<ScheduleBlock> = when {
+        mode == AppThemeMode.Kids -> listOf(
+            ScheduleBlock("k1", "Morning Shine ☀️", "8:00 AM", "life"),
+            ScheduleBlock("k2", "Mission: Math Island 🚀", "9:30 AM", "work"),
+            ScheduleBlock("k3", "Sensory Reset 🏝️", "11:00 AM", "sensory"),
+            ScheduleBlock("k4", "Lunch & Playtime 🥪", "12:00 PM", "life"),
+            ScheduleBlock("k5", "Talk Board Practice 💬", "1:30 PM", "work")
+        )
+        mode == AppThemeMode.Teens -> listOf(
+            ScheduleBlock("t1", "Morning Hydrate & Prep", "7:30 AM", "life"),
+            ScheduleBlock("t2", "Algebra II Focus Block", "8:30 AM", "work"),
+            ScheduleBlock("t3", "15m Lofi Sensory Reset", "11:30 AM", "sensory"),
+            ScheduleBlock("t4", "Lunch & Friend Hangout", "12:30 PM", "life"),
+            ScheduleBlock("t5", "Driver's Ed Study", "2:00 PM", "work"),
+            ScheduleBlock("t6", "Guilt-Free Gaming Window 🎮", "4:30 PM", "life")
+        )
+        mode == AppThemeMode.Work -> listOf(
+            ScheduleBlock("w1", "Executive Alignment", "8:30 AM", "life"),
+            ScheduleBlock("w2", "Deep Work: Q3 Strategy", "9:30 AM", "work"),
+            ScheduleBlock("w3", "Sensory Reset / Unplug", "11:30 AM", "sensory"),
+            ScheduleBlock("w4", "Lunch & Mindful Walk", "12:30 PM", "life"),
+            ScheduleBlock("w5", "Team Operations Standup", "2:00 PM", "work"),
+            ScheduleBlock("w6", "Evening Shutdown 📵", "5:00 PM", "life")
+        )
+        else -> listOf(
+            ScheduleBlock("1", "Morning Routine", "8:00 AM", "life"),
+            ScheduleBlock("2", "Deep Focus: Study", "9:30 AM", "work"),
+            ScheduleBlock("3", "Sensory Reset", "11:00 AM", "sensory"),
+            ScheduleBlock("4", "Lunch & Social", "12:00 PM", "life"),
+            ScheduleBlock("5", "Collaborative Work", "1:30 PM", "work")
+        )
+    }
+
+    // Dynamic Mode-Specific Classes / Focus Projects
+    fun getClasses(mode: AppThemeMode, segment: String): List<StudyClass> = when {
+        mode == AppThemeMode.Kids -> listOf(
+            StudyClass("c1", "Math Island 🏝️", "#00E5FF", "Today 10:00 AM", "Counting & Shapes"),
+            StudyClass("c2", "Phonics & Words 📖", "#FFD54F", "Tomorrow 9:00 AM", "Letter Sounding"),
+            StudyClass("c3", "Art & Drawing 🎨", "#A855F7", "Fri 1:00 PM", "Color Matching")
+        )
+        mode == AppThemeMode.Teens -> listOf(
+            StudyClass("t1", "Algebra II", "#00E5FF", "Today 9:00 AM", "Quadratic Equations"),
+            StudyClass("t2", "Driver's Education", "#FFD54F", "Tomorrow 2:00 PM", "Road Signs & Rules"),
+            StudyClass("t3", "U.S. History", "#A855F7", "Fri 11:00 AM", "Essay Outline")
+        )
+        mode == AppThemeMode.Work -> listOf(
+            StudyClass("w1", "Q3 Strategy Deck", "#0EA5E9", "Today 2:00 PM", "Executive Summary"),
+            StudyClass("w2", "Monthly Invoices", "#10B981", "Tomorrow 10:00 AM", "Vendor Approvals"),
+            StudyClass("w3", "Client Operations", "#6366F1", "Fri 3:00 PM", "Quarterly Review")
+        )
+        else -> listOf(
+            StudyClass("cog-210", "Cognitive Psychology", "#A855F7", "Today 2:00 PM", "Chapter 8 retrieval practice"),
+            StudyClass("bio-144", "Biology Lab", "#FFD54F", "Tomorrow 10:30 AM", "Lab report outline"),
+            StudyClass("eng-302", "Writing Seminar", "#A7494F", "Fri 11:00 AM", "Argument map revision")
+        )
+    }
+
+    // Dynamic Mode-Specific Tasks
+    fun getTasks(mode: AppThemeMode, segment: String): List<StudyTask> = when {
+        mode == AppThemeMode.Kids -> listOf(
+            StudyTask(
+                id = "task-kids-math",
+                classId = "c1",
+                course = "Math Island 🏝️",
+                title = "Complete 5 Counting Stars",
+                due = "Today",
+                estimateMinutes = 15,
+                energy = "low",
+                steps = listOf(
+                    "Open Math Island",
+                    "Count 5 blue stars",
+                    "Tap the matching number",
+                    "Collect 20 Tokens!"
+                )
             )
         )
-    )
+        mode == AppThemeMode.Teens -> listOf(
+            StudyTask(
+                id = "task-teen-drivers",
+                classId = "t2",
+                course = "Driver's Education",
+                title = "Practice 10 Road Sign Questions",
+                due = "Today",
+                estimateMinutes = 20,
+                energy = "medium",
+                steps = listOf(
+                    "Open Road Signs guide",
+                    "Identify 5 warning signs",
+                    "Identify 5 regulatory signs",
+                    "Earn Gaming Pass reward!"
+                )
+            )
+        )
+        mode == AppThemeMode.Work -> listOf(
+            StudyTask(
+                id = "task-work-strategy",
+                classId = "w1",
+                course = "Q3 Strategy Deck",
+                title = "Draft Executive Summary Slide",
+                due = "Today",
+                estimateMinutes = 30,
+                energy = "high",
+                steps = listOf(
+                    "Open Q3 Strategy template",
+                    "Write key milestone 1",
+                    "Write key milestone 2",
+                    "Review revenue projections",
+                    "Save deck draft"
+                )
+            )
+        )
+        else -> listOf(
+            StudyTask(
+                id = "task-cog-retrieval",
+                classId = "cog-210",
+                course = "Cognitive Psychology",
+                title = "Prepare for Chapter 8 quiz",
+                due = "Tonight",
+                estimateMinutes = 35,
+                energy = "medium",
+                steps = listOf(
+                    "Open Chapter 8 notes",
+                    "Mark three concepts that feel unclear",
+                    "Answer five retrieval questions",
+                    "Write one summary card",
+                    "Choose the next review time"
+                )
+            )
+        )
+    }
+
+    val dailySchedule = getSchedule(AppThemeMode.Default, "college")
+    val classes = getClasses(AppThemeMode.Default, "college")
+    val tasks = getTasks(AppThemeMode.Default, "college")
 }
 
 fun createFocusSession(task: StudyTask, durationMinutes: Int = 25, transitionMinutes: Int = 1): FocusSession {
