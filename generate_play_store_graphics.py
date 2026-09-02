@@ -56,13 +56,16 @@ except:
     title_font = subtitle_font = tagline_font = bullet_font = ImageFont.load_default()
 
 # Title text: NeuroOS
-fg_draw.text((440, 70), "NeuroOS", fill=(0, 229, 255, 255), font=title_font)
+fg_draw.text((440, 60), "NeuroOS", fill=(0, 229, 255, 255), font=title_font)
 
 # Subtitle: The Neurodivergent OS
-fg_draw.text((440, 145), "The Neurodivergent OS", fill=(244, 247, 255, 255), font=subtitle_font)
+fg_draw.text((440, 135), "The Neurodivergent OS", fill=(244, 247, 255, 255), font=subtitle_font)
 
 # Tagline: Made by us, for us.
-fg_draw.text((440, 195), "Made by us, for us.", fill=(168, 85, 247, 255), font=tagline_font)
+fg_draw.text((440, 185), "Made by us, for us.", fill=(168, 85, 247, 255), font=tagline_font)
+
+# Sub-headline: Reimagining smartphones...
+fg_draw.text((440, 225), "Reimagining smartphones for our community.", fill=(203, 213, 225, 255), font=tagline_font)
 
 # Feature Bullets (Clean ASCII bullets, no missing glyph boxes)
 bullets = [
@@ -72,10 +75,10 @@ bullets = [
     "* Tactile Talk Board -- Picture Communication & Phonics"
 ]
 
-y_pos = 260
+y_pos = 280
 for b in bullets:
     fg_draw.text((440, y_pos), b, fill=(203, 213, 225, 255), font=bullet_font)
-    y_pos += 36
+    y_pos += 34
 
 # Outer Neon Frame
 fg_draw.rectangle([2, 2, 1022, 498], outline=(0, 229, 255, 90), width=3)
